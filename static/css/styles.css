@@ -15,3 +15,27 @@ bot {
 chat {
     display: block;
 }
+
+.form-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input[type="text"]{
+    width: 300px;
+    height: 40px;
+    padding: 10px;
+}
+
+textarea {
+    width: 100%;                /* Full width of the container */
+    max-width: 500px;           /* Maximum width */
+    height: 100px;              /* Set the height */
+    padding: 10px;             /* Add padding */
+    font-size: 16px;           /* Set font size */
+    box-sizing: border-box;    /* Include padding and border in total width/height */
+    resize: none;              /* Optional: Prevent resizing */
+    overflow-wrap: break-word; /* Ensure text wraps to new lines */
+    white-space: pre-wrap;     /* Preserve whitespace and wrap text */
+}
