@@ -19,9 +19,11 @@
         <div class="chat" id="result">
             <!-- Submissions will be appended here -->
         </div>
+    </div>
+    <div class="searchbar">
         <div class="form-container">
-            <form class="query" hx-post="/llm" hx-target="#result" hx-swap="afterbegin">
-                <textarea name="input" placeholder="Type Something ..."></textarea>
+            <form class="query-form" hx-post="/llm" hx-target="#result" hx-swap="afterbegin">
+                <textarea class="textarea" name="input" placeholder="Type Something ..."></textarea>
                 <!-- <input type="text" name="input" placeholder="Type something..."> -->
                 <button class="submit-button" type="submit">Submit</button>
             </form>

@@ -26,11 +26,14 @@ input[type="text"]{
     height: 40px;
     padding: 30px;
 }
-
-textarea {
-    width: 100%;                /* Full width of the container */
-    max-width: 500px;           /* Maximum width */
-    height: 100px;              /* Set the height */
+.query-form{
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+.textarea {
+    width: 89%;                /* Full width of the container */
+    height: 50px;              /* Set the height */
     padding: 10px;             /* Add padding */
     font-size: 16px;           /* Set font size */
     box-sizing: border-box;    /* Include padding and border in total width/height */
@@ -86,6 +89,22 @@ textarea {
     text-align: left;
 }
 
+/* Page content. The value of the margin-left property should match the value of the sidebar's width property */
+div.content {
+    margin-left: 200px;
+    padding: 1px 16px;
+    height: 80vh;
+    max-width: 80vw;
+  }
+
+.searchbar {
+    padding: 0;
+    height: 200px;
+    background: white;
+    max-width: 100%;
+
+}
+
 /* The side navigation menu */
 .sidebar {
     margin: 0;
@@ -117,14 +136,15 @@ textarea {
     background-color: #555;
     color: white;
   }
-  
-  /* Page content. The value of the margin-left property should match the value of the sidebar's width property */
   div.content {
     margin-left: 200px;
     padding: 1px 16px;
-    height: 100vh;
+    height: 80vh;
+    max-width: 80vw;
   }
-  
+  div.searchbar{
+    margin-left: 220px;
+  }
   /* On screens that are less than 700px wide, make the sidebar into a topbar */
   @media screen and (max-width: 700px) {
     .sidebar {
@@ -134,6 +154,7 @@ textarea {
     }
     .sidebar a {float: left;}
     div.content {margin-left: 0;}
+    div.searchbar {margin-left: 0;}
   }
   
   /* On screens that are less than 400px, display the bar vertically, instead of horizontally */
@@ -142,4 +163,4 @@ textarea {
       text-align: center;
       float: none;
     }
-  }
+}
