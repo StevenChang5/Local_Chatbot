@@ -27,7 +27,14 @@ def process_request():
     user_input = request.form['input']
     user_input = f"{user_input}"
     data = chain.invoke(user_input)
-    response_html = f"<user>User: {user_input}</user><bot>Bot: {data}</bot>"
+    response_html = f"""
+    <div class="chat-bubble chat-bubble-bot">
+        <div class="chat-bubble-text-bot">{data}</div>
+    </div>
+    <div class="chat-bubble chat-bubble-user">
+        <div class="chat-bubble-text-user">{user_input}</div>
+    </div>
+    """
     return response_html
 
 # main driver function, runs application on local dev server
