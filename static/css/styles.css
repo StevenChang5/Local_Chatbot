@@ -1,0 +1,17 @@
+/* styles.css */
+user {
+    color: red;
+    display: block;
+    padding: 10px;
+    text-align: right;
+}
+
+bot {
+    color: blue;
+    font-family:'Courier New', Courier, monospace;
+    display: block;
+    padding: 10px;
+}
+chat {
+    display: block;
+}
