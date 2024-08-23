@@ -1,63 +1,32 @@
 /* styles.css */
 .main-caption{
-    font-size: 38px;
+    font-size: 32px;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 100;
+    margin: 10px;
+    min-width: 524px;
+}
+
+.wrapper{
+    display:flex;
+    flex-direction: column-reverse;
+}
+
+/* Page content. The value of the margin-left property should match the value of the sidebar's width property */
+.content {
+    margin-left: 200px;
+    padding: 0px 16px;
+    height: 98vh;
+    max-width: calc(100vw - 200px);
 }
 
 .chat {
     display: flex;
     flex-direction: column-reverse; /* Stacks chat bubbles from bottom to top*/
     align-items: flex-end;
-    min-height:55vh;
-    padding: 10px;
+    height:calc(100% - 125px);
+    overflow-y: auto;
 }
-
-.form-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 20px;
-    padding-top: 20px;
-}
-
-input[type="text"]{
-    width: 300px;
-    height: 40px;
-    padding: 30px;
-}
-.query-form{
-    width: 100%;
-    display: flex;
-    gap: 10px;
-}
-.textarea {
-    width: 89%;                /* Full width of the container */
-    height: 50px;              /* Set the height */
-    padding: 10px;             /* Add padding */
-    font-size: 16px;           /* Set font size */
-    box-sizing: border-box;    /* Include padding and border in total width/height */
-    resize: none;              /* Optional: Prevent resizing */
-    overflow-wrap: break-word; /* Ensure text wraps to new lines */
-    white-space: pre-wrap;     /* Preserve whitespace and wrap text */
-    border-radius: 10px;
-}
-
-.submit-button{
-    background-color: rgb(0, 91, 227); /* Green */
-    border: none;
-    color: white;
-    padding: 15px 15px;
-    border-radius: 15px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-}
-.submit-button:hover {
-    background-color: #555;
-    color: white;
-  }
 
 .chat-bubble{
     max-width: 60%;
@@ -89,21 +58,54 @@ input[type="text"]{
     text-align: left;
 }
 
-/* Page content. The value of the margin-left property should match the value of the sidebar's width property */
-div.content {
-    margin-left: 200px;
-    padding: 1px 16px;
-    height: 80vh;
-    max-width: 80vw;
-  }
-
 .searchbar {
+    margin: 0;
     padding: 0;
-    height: 200px;
-    background: white;
-    max-width: 100%;
-
+    width: 100%;
+    position: fixed;
+    overflow: auto;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
 }
+
+.query-form{
+    width: calc(100%-220px);
+    display: flex;
+    gap: 10px;
+    padding-left: 200px;
+    margin:15px;
+    margin-top:3px;
+  
+}
+.textarea {
+    width: 100%;              
+    height: 50px;             
+    padding: 10px;           
+    font-size: 16px;           
+    box-sizing: border-box;    
+    resize: none;              
+    overflow-wrap: break-word; 
+    white-space: pre-wrap;     
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    border-color: #f1f1f1;
+}
+
+.submit-button{
+    background-color: rgb(0, 91, 227); /* Green */
+    border: none;
+    color: white;
+    padding: 15px 15px;
+    border-radius: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+.submit-button:hover {
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+  }
 
 /* The side navigation menu */
 .sidebar {
@@ -115,52 +117,45 @@ div.content {
     height: 100%;
     overflow: auto;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
-  }
-  
-  /* Sidebar links */
-  .sidebar a {
+}
+
+/* Sidebar links */
+.sidebar a {
     display: block;
     color: black;
     padding: 16px;
     text-decoration: none;
-  }
-  
-  /* Active/current link */
-  .sidebar a.active {
+}
+
+/* Active/current link */
+.sidebar a.active {
     background-color: rgb(0, 91, 227);
     color: white;
-  }
-  
-  /* Links on mouse-over */
-  .sidebar a:hover:not(.active) {
+}
+
+/* Links on mouse-over */
+.sidebar a:hover:not(.active) {
     background-color: #555;
     color: white;
-  }
-  div.content {
-    margin-left: 200px;
-    padding: 1px 16px;
-    height: 80vh;
-    max-width: 80vw;
-  }
-  div.searchbar{
-    margin-left: 220px;
-  }
-  /* On screens that are less than 700px wide, make the sidebar into a topbar */
-  @media screen and (max-width: 700px) {
+}
+
+/* On screens that are less than 700px wide, make the sidebar dissappear*/
+@media screen and (max-width: 700px) {
     .sidebar {
-      width: 100%;
-      height: auto;
-      position: relative;
+        width: 100%;
+        height: 0px;
+        position: relative;
     }
-    .sidebar a {float: left;}
-    div.content {margin-left: 0;}
-    div.searchbar {margin-left: 0;}
-  }
-  
-  /* On screens that are less than 400px, display the bar vertically, instead of horizontally */
-  @media screen and (max-width: 400px) {
+    div.content {margin-left: 0; max-width: 100vw}
+    .query-form {
+        padding-left: 0px;
+    }
+}
+
+/* On screens that are less than 400px, display the bar vertically, instead of horizontally */
+@media screen and (max-width: 400px) {
     .sidebar a {
-      text-align: center;
-      float: none;
-    }
+        text-align: center;
+        float: none;
+        }
 }
