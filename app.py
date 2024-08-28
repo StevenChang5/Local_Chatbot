@@ -1,8 +1,14 @@
 from flask import Flask, redirect, render_template,url_for, request, jsonify
-import time
+import time, os
 from langchain_ollama.llms import OllamaLLM
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.documents import Document
+from uuid import uuid4
 from model import *
 app = Flask(__name__)
+
+UPLOAD_FOLDER = './uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # '/' URL bound to hello_world()
 @app.route('/')
@@ -28,6 +34,24 @@ def process_request():
     """
     chat_history.extend([HumanMessage(content=user_input), data["answer"]])
     return response_html
+
+@app.route('/upload',methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in request"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+    
+    filename = file.filename
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+    temp_load = PyPDFLoader(filepath)
+    document_pages = temp_load.load_and_split()
+    uuids = [str(uuid4()) for _ in range(len(document_pages))]
+    vector.add_documents(documents=document_pages, ids=uuids)
+    os.remove(filepath)
+    return filename
 
 # main driver function, runs application on local dev server
 if __name__ == '__main__':

@@ -1,31 +1,31 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import PyPDFLoader
 
 from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
+from langchain_community.docstore import InMemoryDocstore
 
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import MessagesPlaceholder
-from langchain_core.messages import HumanMessage, AIMessage
+
+import faiss
 
 chat_history = []
 
 model = OllamaLLM(model="llama3.1", base_url="http://ollama-container:11434", verbose=True)
 
-loader = WebBaseLoader("https://docs.smith.langchain.com/user_guide")
-docs = loader.load()
 embeddings_model = OllamaEmbeddings(model="nomic-embed-text")
-text_splitter = RecursiveCharacterTextSplitter()
-documents = text_splitter.split_documents(docs)
-vector = FAISS.from_documents(documents,embeddings_model)
+embedding_dimension = 768
+index = faiss.IndexFlatL2(embedding_dimension)
+vector = FAISS(
+    embedding_function=OllamaEmbeddings(model="nomic-embed-text"), index=index,
+    docstore=InMemoryDocstore(),
+    index_to_docstore_id={})
 retriever = vector.as_retriever()
 
 contextualize_q_system_prompt = """Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question, just reformulate it if needed and otherwise return it as is."""
@@ -55,7 +55,3 @@ qa_prompt = ChatPromptTemplate.from_messages(
 question_answer_chain = create_stuff_documents_chain(model, qa_prompt)
 
 rag_chain = create_retrieval_chain(history_aware_retriever,question_answer_chain)
-
-# question = "My name is Steven!"
-# ai_msg_1 = rag_chain.invoke({"input": question, "chat_history": chat_history})
-# chat_history.extend([HumanMessage(content=question), ai_msg_1["answer"]])
