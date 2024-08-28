@@ -39,19 +39,29 @@ def process_request():
 def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part in request"}), 400
+    print(request.files)
+    print(request.files['file'])
+    print(request.files.getlist('file'))
     file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
+    files = request.files.getlist('file')
+    response_html = f""
+    for file in files:
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+        
+        filename = file.filename
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        temp_load = PyPDFLoader(filepath)
+        document_pages = temp_load.load_and_split()
+        uuids = [str(uuid4()) for _ in range(len(document_pages))]
+        vector.add_documents(documents=document_pages, ids=uuids)
+        os.remove(filepath)
+        response_html += f"""
+        <a>{file.filename}</a>
+        """
     
-    filename = file.filename
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
-    temp_load = PyPDFLoader(filepath)
-    document_pages = temp_load.load_and_split()
-    uuids = [str(uuid4()) for _ in range(len(document_pages))]
-    vector.add_documents(documents=document_pages, ids=uuids)
-    os.remove(filepath)
-    return filename
+    return response_html
 
 # main driver function, runs application on local dev server
 if __name__ == '__main__':
