@@ -16,34 +16,46 @@ from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
 
-MAX_HISTORY = 10
+chat_history = []
 
-model = OllamaLLM(model="llama3.1")
+model = OllamaLLM(model="llama3.1", base_url="http://ollama-container:11434", verbose=True)
 
 loader = WebBaseLoader("https://docs.smith.langchain.com/user_guide")
 docs = loader.load()
 embeddings_model = OllamaEmbeddings(model="nomic-embed-text")
 text_splitter = RecursiveCharacterTextSplitter()
 documents = text_splitter.split_documents(docs)
-vector = FAISS.from_documents(documents, embeddings_model)
-
-prompt = ChatPromptTemplate.from_messages([
-    MessagesPlaceholder(variable_name="chat_history"),
-    ("user", "{input}"),
-    ("user", "You are a world class asssistant."),
-    ("user", "Given the above conversation, generate a search query to look up to get information relevant to the conversation")
-])
-
-prompt = ChatPromptTemplate.from_template("""
-<context>
-{context}
-</context>
-
-Question: {input}""")
-
-document_chain = create_stuff_documents_chain(model, prompt)
-
+vector = FAISS.from_documents(documents,embeddings_model)
 retriever = vector.as_retriever()
-retrieval_chain = create_retrieval_chain(retriever, document_chain)
 
-chat_history = []
+contextualize_q_system_prompt = """Given a chat history and the latest user question which might reference context in the chat history, formulate a standalone question which can be understood without the chat history. Do NOT answer the question, just reformulate it if needed and otherwise return it as is."""
+contextualize_q_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", contextualize_q_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human","{input}"),
+    ]
+)
+history_aware_retriever = create_history_aware_retriever(
+    model, retriever, contextualize_q_prompt
+)
+
+qa_system_prompt = """You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. 
+
+{context}"""
+
+qa_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system",qa_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}"),
+    ]
+)
+
+question_answer_chain = create_stuff_documents_chain(model, qa_prompt)
+
+rag_chain = create_retrieval_chain(history_aware_retriever,question_answer_chain)
+
+# question = "My name is Steven!"
+# ai_msg_1 = rag_chain.invoke({"input": question, "chat_history": chat_history})
+# chat_history.extend([HumanMessage(content=question), ai_msg_1["answer"]])
