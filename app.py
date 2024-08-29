@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template,url_for, request, jsonify
+from flask import Flask, redirect, render_template,url_for, request, jsonify, stream_with_context,Response
 import time, os
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.messages import HumanMessage, AIMessage
@@ -22,18 +22,10 @@ def process_request():
     user_input = request.form['input']
     user_input = f"{user_input}"
 
-    data = rag_chain.invoke({"input": user_input, "chat_history": chat_history})
-        
-    response_html = f"""
-    <div class="chat-bubble chat-bubble-bot">
-        <div class="chat-bubble-text-bot">{data["answer"]}</div>
-    </div>
-    <div class="chat-bubble chat-bubble-user">
-        <div class="chat-bubble-text-user">{user_input}</div>
-    </div>
-    """
-    chat_history.extend([HumanMessage(content=user_input), data["answer"]])
-    return response_html
+    for chunk in rag_chain.stream({"input": user_input, "chat_history":chat_history}):
+        if 'answer' in chunk:
+            print(chunk["answer"])
+    return chunk["answer"]
 
 @app.route('/upload',methods=['POST'])
 def upload_file():
