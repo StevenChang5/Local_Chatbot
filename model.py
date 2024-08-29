@@ -13,11 +13,17 @@ from langchain_community.docstore import InMemoryDocstore
 from langchain.chains import create_history_aware_retriever
 from langchain_core.prompts import MessagesPlaceholder
 
+from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
 import faiss
 
 chat_history = []
 
-model = OllamaLLM(model="llama3.1", base_url="http://ollama-container:11434", verbose=True)
+model = OllamaLLM(
+    model="llama3.1", 
+    base_url="http://ollama-container:11434", 
+    verbose=True,
+)
 
 embeddings_model = OllamaEmbeddings(model="nomic-embed-text")
 embedding_dimension = 768
@@ -40,7 +46,7 @@ history_aware_retriever = create_history_aware_retriever(
     model, retriever, contextualize_q_prompt
 )
 
-qa_system_prompt = """You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. 
+qa_system_prompt = """You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Answer professionally. 
 
 {context}"""
 
