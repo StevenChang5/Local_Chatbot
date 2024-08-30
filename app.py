@@ -14,7 +14,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/')
 def start():
     model = OllamaLLM(model="llama3.1", base_url="http://ollama-container:11434", verbose=True)
-    model.invoke("Hello!")
     return render_template("index.html")
 
 @app.route('/llm',methods=['POST'])

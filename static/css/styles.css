@@ -169,9 +169,36 @@
 
 .document-list{
     overflow-y: auto;
-    height: calc(100vh - 160px)
+    height: calc(100vh - 153px)
 }
 
 .document-submit{
     padding: 10px;
+}
+
+.file-form{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.upload-button{
+    background-color: rgb(0, 91, 227); /* Green */
+    border: none;
+    color: white;
+    padding: 5px 18px;
+    border-radius: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+.upload-button:hover {
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+  }
+
+input[type="file"] {
+    padding: 5px;
 }
