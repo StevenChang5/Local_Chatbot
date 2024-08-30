@@ -1,8 +1,7 @@
-from flask import Flask, redirect, render_template,url_for, request, jsonify
-import time, os
+from flask import Flask, render_template, request, jsonify
+import os
 from langchain_ollama.llms import OllamaLLM
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.documents import Document
+from langchain_core.messages import HumanMessage
 from uuid import uuid4
 from model import *
 app = Flask(__name__)
@@ -26,9 +25,6 @@ def process_request():
     response_html = f"""
     <div class="chat-bubble chat-bubble-bot">
         <div class="chat-bubble-text-bot">{data["answer"]}</div>
-    </div>
-    <div class="chat-bubble chat-bubble-user">
-        <div class="chat-bubble-text-user">{user_input}</div>
     </div>
     """
     chat_history.extend([HumanMessage(content=user_input), data["answer"]])

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QandA Bot</title>
     <script src="https://unpkg.com/htmx.org"></script>
-    <script src="scripts.js"></script>
+    <script src="{{ url_for('static',filename='js/scripts.js' )}}"></script>
     <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css') }}">
 </head>
 <body class="body">
@@ -32,9 +32,8 @@
         </div>
         <div id="upload-response"></div>
         <div class="searchbar">
-            <form class="query-form" hx-post="/llm" hx-target="#result" hx-swap="afterbegin">
-                <textarea class="textarea" name="input" placeholder="Type Something ..."></textarea>
-                <!-- <input type="text" name="input" placeholder="Type something..."> -->
+            <form class="query-form" id="query-form" hx-post="/llm" hx-target="#result" hx-swap="afterbegin" onsubmit="appendInputToChat()">
+                <textarea class="textarea" id="input"name="input" placeholder="Type Something ..."></textarea>
                 <button class="submit-button" type="submit">Submit</button>
             </form>
         </div>
