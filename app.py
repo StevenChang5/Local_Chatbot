@@ -9,7 +9,6 @@ app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# '/' URL bound to hello_world()
 @app.route('/')
 def start():
     model = OllamaLLM(model="llama3.1", base_url="http://ollama-container:11434", verbose=True)
