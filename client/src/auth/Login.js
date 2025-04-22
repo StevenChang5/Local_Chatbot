@@ -5,7 +5,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
 
-    const handleRegister = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         const res = await fetch('http://localhost:8080/auth/login',{
             method: 'POST',
@@ -13,13 +13,17 @@ export default function Login() {
             body: JSON.stringify({email,password})
         });
         const data = await res.json();
+        if(data.token){
+            localStorage.setItem('token', data.token);
+            window.location.href = '/profile';
+        }
         setMessage(data.message);
     }
 
     return(
         <div>
             <h2>Login</h2>
-            <form onSubmit={handleRegister}>
+            <form onSubmit={handleLogin}>
                 <input type="email" placeholder="Email" onChange={e=>setEmail(e.target.value)} required/>
                 <input type="password" placeholder="Password" onChange={e=>setPassword(e.target.value)} required/>
                 <button type="submit">Login</button>

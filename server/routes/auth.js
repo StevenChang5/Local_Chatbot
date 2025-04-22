@@ -1,6 +1,8 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const db = require('../db');
+require('dotenv').config();
 
 router.post('/register', async (req,res) => {
     const { email, password } = req.body;
@@ -29,7 +31,9 @@ router.post('/login', async (req,res) => {
         if(!user || user.password != password){
             return res.status(400).json({message: 'Incorrect password'});
         }
-        res.json({message: 'Login successful'});
+        // TODO: Fix secret key later
+        const token = jwt.sign({userId: user.id}, 'asdfjlkasd', {expiresIn:'1h'});
+        res.json({message: 'Login successful', token});
     }catch (err){
         console.error(err);
         res.status(500).json({message: 'Login failed'});

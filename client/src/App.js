@@ -1,30 +1,22 @@
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Register from './auth/Register';
 import Login from './auth/Login';
 
-const apiCall = () => {
-  fetch('http://localhost:8080')
-    .then(response => response.text())
-    .then(data => {
-      console.log(data);
-    })
-    .catch(error => {
-      console.error('Fetch error:', error);
-  });
-}
+import Home from './pages';
+import Profile from './pages/profile'
+
 
 function App() {
   return (
-    <div className="App">
-      <h1>Local Chatbot Login</h1>
-      <Register />
-      <hr />
-      <Login />
-      <header className="App-header">
-        <button onClick={apiCall}>Make API call</button>
-      </header>
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Router>
   );
 }
 

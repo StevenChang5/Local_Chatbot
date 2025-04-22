@@ -36,3 +36,18 @@ Chatbot using Llama3 and Langchain for local q&a and RAG services.
 ```bash
     npm start
 ```
+## Table schemas:
+*   users:
+```bash
+id | email | password
+```
+
+*   conversations:
+```bash
+id | user_id | title | created_at
+```
+
+*   messages:
+```bash
+id | conversation_id | sender | message | timestamp
+```

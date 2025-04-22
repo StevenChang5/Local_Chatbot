@@ -9,9 +9,9 @@ app.use(express.json());
 
 app.use('/auth', authRoutes);
 
-app.get('/', (req,res) => {
-    res.send('Hello from our server!')
-})
+// app.get('/', (req,res) => {
+//     res.send('Hello from our server!')
+// })
 
 // React runs on port 3000 by default
 app.listen(8080, ()=>{
