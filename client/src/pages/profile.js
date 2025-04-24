@@ -33,7 +33,7 @@ const Profile = () => {
         const res = await fetch('http://localhost:8080/chat/ask',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ query: query })
+            body: JSON.stringify({ query: query, conversation_id: activeConversationId})
         });
         const data = await res.json();
         setResponse(data.response);

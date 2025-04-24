@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../db');
 
 router.post('/ask', async (req, res) => {
-    const { query } = req.body;
+    const { query, conversation_id } = req.body;
     const response = await fetch('http://localhost:11434/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
@@ -17,14 +17,14 @@ router.post('/ask', async (req, res) => {
     const data = await response.json();
     res.json({ response: data.response });
 
-    db.query(
+    await db.query(
         'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-        [1, 'user', query ]
+        [conversation_id, 'user', query ]
     );
 
     db.query(
         'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-        [1, 'bot', data.response ]
+        [conversation_id, 'bot', data.response ]
     );
 });
 

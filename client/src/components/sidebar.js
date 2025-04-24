@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
 function ChatSidebar({ userId, onSelectConversation }){
-    const [conversations, setConvsersations] = useState([]);
+    const [conversations, setConversations] = useState([]);
 
     useEffect(() => {
         fetch(`http://localhost:8080/profile/conversations/${userId}`)
         .then(res => res.json())
-        .then(data => setConvsersations(data))
+        .then(data => setConversations(data))
         .catch(err => console.error('Failed to fetch conversations:', err));
     }, [userId]);
 
