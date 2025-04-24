@@ -6,6 +6,7 @@ const Profile = () => {
     const [query, setQuery] = useState('');
     const [response, setResponse] = useState('');
     const [activeConversationId, setActiveConversationId] = useState(null);
+    const [input, setInput] = useState('');
     
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -30,6 +31,7 @@ const Profile = () => {
 
     const handleQuery = async (e) => {
         e.preventDefault();
+        setInput('');
         const res = await fetch('http://localhost:8080/chat/ask',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -49,7 +51,16 @@ const Profile = () => {
             />
             <h1>Welcome {profile.id} to your profile!</h1>
             <form onSubmit={handleQuery}>
-                <input type="text" placeholder="Ask a question..." onChange={e=>setQuery(e.target.value)} required />
+                <input 
+                    type="text" 
+                    value={input}
+                    placeholder="Ask a question..." 
+                    onChange={e=>{
+                        setQuery(e.target.value);
+                        setInput(e.target.value);
+                        }
+                    } 
+                    required />
                 <button type="submit">Send Query</button>
             </form>
             {response && <p>{response}</p>}
