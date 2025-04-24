@@ -16,4 +16,18 @@ router.get('/main_profile', verifyToken, async (req, res) => {
     }
 });
 
+router.get('/conversations/:userId', async (req, res) =>{
+    const userId = req.params.userId;
+    try{
+        const result = await db.query(
+            'SELECT id, title, created_at FROM conversations WHERE user_id = $1 ORDER BY created_at DESC',
+            [userId]
+        );
+        res.json(result.rows);
+    }catch(err){
+        console.error('Error fetching conversations:',err);
+        res.status(500).json({ error: 'Failed to fetch conversations' });
+    }
+})
+
 module.exports = router;

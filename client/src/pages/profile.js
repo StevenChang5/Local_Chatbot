@@ -1,9 +1,11 @@
 import {useEffect, useState} from 'react';
+import ChatSidebar from '../components/sidebar';
 
 const Profile = () => {
     const [profile, setProfile] = useState(null);
     const [query, setQuery] = useState('');
     const [response, setResponse] = useState('');
+    const [activeConversationId, setActiveConversationId] = useState(null);
     
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -41,6 +43,10 @@ const Profile = () => {
 
     return (
         <div>
+            <ChatSidebar
+                userId={profile.id}
+                onSelectConversation={(id) => setActiveConversationId(id)}
+            />
             <h1>Welcome {profile.id} to your profile!</h1>
             <form onSubmit={handleQuery}>
                 <input type="text" placeholder="Ask a question..." onChange={e=>setQuery(e.target.value)} required />
