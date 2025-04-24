@@ -7,6 +7,7 @@ const Profile = () => {
     const [response, setResponse] = useState('');
     const [activeConversationId, setActiveConversationId] = useState(null);
     const [input, setInput] = useState('');
+    const [history, setHistory] = useState(null);
     
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -41,23 +42,36 @@ const Profile = () => {
         setResponse(data.response);
     };
 
+    const displayHistory = (id) =>{
+        fetch(`http://localhost:8080/chat/history/${id}`)
+        .then(res => res.json())
+        .then(data => console.log(data))
+        // .then(data => setHistory(data))
+        .catch(err => console.error('Failed to fetch conversations:', err));
+    }
+
     if(!profile) return <p>Loading profile</p>;
 
     return (
         <div>
             <ChatSidebar
                 userId={profile.id}
-                onSelectConversation={(id) => setActiveConversationId(id)}
+                onSelectConversation={(id) => {
+                        setActiveConversationId(id);
+                        displayHistory(id);
+                    }
+                }
             />
             <h1>Welcome {profile.id} to your profile!</h1>
+            <h2>Current conversation: {activeConversationId}</h2>
             <form onSubmit={handleQuery}>
                 <input 
                     type="text" 
                     value={input}
                     placeholder="Ask a question..." 
                     onChange={e=>{
-                        setQuery(e.target.value);
-                        setInput(e.target.value);
+                            setQuery(e.target.value);
+                            setInput(e.target.value);
                         }
                     } 
                     required />

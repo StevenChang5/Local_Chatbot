@@ -28,4 +28,17 @@ router.post('/ask', async (req, res) => {
     );
 });
 
+router.get('/history/:conversationId', async (req, res) => {
+    const conversationId = req.params.conversationId;
+    try{
+        const result = await db.query(
+            'SELECT conversation_id, sender, message FROM messages WHERE conversation_id = $1 ORDER BY timestamp DESC',
+            [conversationId]
+        );
+        res.json(result.rows);
+    }catch(err){
+        console.error('Error fetching conversations:',err);
+        res.status(500).json({ error: 'Failed to fetch conversations' });
+    }
+})
 module.exports = router;
