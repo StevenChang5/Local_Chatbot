@@ -16,15 +16,16 @@ router.post('/ask', async (req, res) => {
 
     const data = await response.json();
     res.json({ response: data.response });
-    // console.log(response.message.content);
 
-    // const data = await response.json();
-    // res.json({ response: data.response });
+    db.query(
+        'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
+        [1, 'user', query ]
+    );
 
-    // db.query(
-    //     'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-    //     [1, 'user', question ]
-    // );
+    db.query(
+        'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
+        [1, 'bot', data.response ]
+    );
 });
 
 module.exports = router;
