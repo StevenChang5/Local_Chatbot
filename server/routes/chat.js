@@ -15,17 +15,34 @@ router.post('/ask', async (req, res) => {
     });
 
     const data = await response.json();
-    res.json({ response: data.response });
+    // res.json({ response: data.response });
 
-    await db.query(
-        'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-        [conversation_id, 'user', query ]
-    );
+    try{
+        await db.query(
+            'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
+            [conversation_id, 'user', query ]
+        );
+    
+        db.query(
+            'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
+            [conversation_id, 'bot', data.response ]
+        );
+    }catch(err){
+        console.error('Error inserting conversations:',err);
+        res.status(500).json({ error: 'Failed to insert conversations' });
+    }
 
-    db.query(
-        'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-        [conversation_id, 'bot', data.response ]
-    );
+    try{
+        const result = await db.query(
+            'SELECT conversation_id, sender, message FROM messages WHERE conversation_id = $1 ORDER BY timestamp DESC',
+            [conversation_id]
+        )
+        res.json(result.rows);
+    }catch(err){
+        console.error('Error fetching conversations:',err);
+        res.status(500).json({ error: 'Failed to fetch conversations' });
+    }
+    
 });
 
 router.get('/history/:conversationId', async (req, res) => {

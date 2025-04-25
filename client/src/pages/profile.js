@@ -4,7 +4,6 @@ import ChatSidebar from '../components/sidebar';
 const Profile = () => {
     const [profile, setProfile] = useState(null);
     const [query, setQuery] = useState('');
-    const [response, setResponse] = useState('');
     const [activeConversationId, setActiveConversationId] = useState(null);
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
@@ -32,14 +31,17 @@ const Profile = () => {
 
     const handleQuery = async (e) => {
         e.preventDefault();
+        history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
         setInput('');
-        const res = await fetch('http://localhost:8080/chat/ask',{
+        console.log(history);
+        fetch('http://localhost:8080/chat/ask',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ query: query, conversation_id: activeConversationId})
-        });
-        const data = await res.json();
-        setResponse(data.response);
+        })
+        .then(res => res.json())
+        .then(data => setHistory(data))
+        .catch(err => console.error('Failed to query chatbot:', err));
     };
 
     const displayHistory = (id) =>{
@@ -66,7 +68,7 @@ const Profile = () => {
             {activeConversationId ? (
                 <div>
                     <h2>Conversation #{activeConversationId}</h2>
-                    <div>
+                    <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
                         {history.map((msg,idx) => (
                             <div key={idx}>
                                 <p>{msg.sender}: {msg.message}</p>
@@ -92,7 +94,6 @@ const Profile = () => {
                     required />
                 <button type="submit">Send Query</button>
             </form>
-            {response && <p>{response}</p>}
         </div>
     );
 };
