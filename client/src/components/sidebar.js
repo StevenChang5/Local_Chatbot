@@ -33,6 +33,13 @@ function ChatSidebar({ userId, onSelectConversation, refreshSignal }){
                 {conv.title || 'Untitled Chat'}
                 </button>
             ))}
+            <button
+            key={""}
+            onClick={() => onSelectConversation("")}
+            className="block w-full text-left py-2 px-3 rounded hover:bg-gray-200"
+            >
+                Start a new chat:
+            </button>
         </div>
     );
 };

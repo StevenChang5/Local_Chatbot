@@ -49,11 +49,16 @@ const Profile = () => {
     };
 
     const displayHistory = (id) =>{
-        fetch(`http://localhost:8080/chat/history/${id}`)
-        .then(res => res.json())
-        .then(data => setHistory(data))
-        .catch(err => console.error('Failed to fetch conversations:', err));
-        setActiveConversationId(id);
+        if(id === ""){
+            setActiveConversationId(null);
+            setHistory([]);
+        }else{
+            fetch(`http://localhost:8080/chat/history/${id}`)
+            .then(res => res.json())
+            .then(data => setHistory(data))
+            .catch(err => console.error('Failed to fetch conversations:', err));
+            setActiveConversationId(id);
+        }
     }
 
     const newConversation = async (e) => {
