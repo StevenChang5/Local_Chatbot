@@ -7,6 +7,7 @@ const Profile = () => {
     const [activeConversationId, setActiveConversationId] = useState(null);
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
+    const [refreshSidebar, setRefreshSidebar] = useState(false); 
     
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -30,17 +31,20 @@ const Profile = () => {
     }, []);
 
     const handleQuery = async (e) => {
+        console.log("Follow up question");
         e.preventDefault();
         history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
         setInput('');
-        console.log(history);
         fetch('http://localhost:8080/chat/ask',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ query: query, conversation_id: activeConversationId})
         })
         .then(res => res.json())
-        .then(data => setHistory(data))
+        .then(data => {
+            console.log(data);
+            setHistory(data);
+        })
         .catch(err => console.error('Failed to query chatbot:', err));
     };
 
@@ -50,6 +54,25 @@ const Profile = () => {
         .then(data => setHistory(data))
         .catch(err => console.error('Failed to fetch conversations:', err));
         setActiveConversationId(id);
+    }
+
+    const newConversation = async (e) => {
+        console.log("New Conversation");
+        e.preventDefault();
+        history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
+        setInput('');
+        fetch('http://localhost:8080/chat/newConversation',{
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ query: query, profile: profile})
+        })
+        .then(res => res.json())
+        .then(data => {
+            setRefreshSidebar(prev => !prev);
+            setHistory(data.history);
+            setActiveConversationId(data.conversation_id);
+        })
+        .catch(err => console.error('Failed to create new conversation:', err));
     }
 
     if(!profile) return <p>Loading profile</p>;
@@ -62,26 +85,22 @@ const Profile = () => {
                         displayHistory(id);
                     }
                 }
+                refreshSignal={refreshSidebar}
             />
             <h1>Welcome {profile.id} to your profile!</h1>
             <h2>Current conversation: {activeConversationId}</h2>
-            {activeConversationId ? (
-                <div>
-                    <h2>Conversation #{activeConversationId}</h2>
-                    <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
-                        {history.map((msg,idx) => (
-                            <div key={idx}>
-                                <p>{msg.sender}: {msg.message}</p>
-                            </div>
-                        ))}
-                    </div>
+            <div>
+                <h2>Conversation #{activeConversationId}</h2>
+                <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
+                    {history.map((msg,idx) => (
+                        <div key={idx}>
+                            <p>{msg.sender}: {msg.message}</p>
+                        </div>
+                    ))}
                 </div>
-                ) : (
-                <div>
-                    <p>Select a conversation to begin</p>
-                </div>
-            )}
-            <form onSubmit={handleQuery}>
+            </div>
+                
+            <form onSubmit={activeConversationId ? handleQuery : newConversation}>
                 <input 
                     type="text" 
                     value={input}
