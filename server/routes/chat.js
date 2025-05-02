@@ -1,20 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { ChatOllama } = require("@langchain/ollama");
+
+const llm = new ChatOllama({
+    model: "llama3",
+    temperature: 0,
+    maxRetries: 2
+});
 
 router.post('/ask', async (req, res) => {
     const { query, conversation_id } = req.body;
-    const response = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-            model: 'llama3',
-            prompt: query,
-            stream: false
-        }),
-    });
 
-    const data = await response.json();
+    const data = await llm.invoke(["human",query]);
 
     try{
         await db.query(
@@ -24,7 +22,7 @@ router.post('/ask', async (req, res) => {
     
         await db.query(
             'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-            [conversation_id, 'bot', data.response ]
+            [conversation_id, 'bot', data.content ]
         );
     }catch(err){
         console.error('Error inserting conversations:',err);
@@ -60,19 +58,15 @@ router.get('/history/:conversationId', async (req, res) => {
 
 router.post('/newConversation', async(req,res) => {
     const { query, profile } = req.body;
-    const titleResponse = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            model: 'llama3',
-            prompt: `Generate a title for the following query that summarizes the topic of the query. 
-                    The title should be short and only a few words. 
-                    Do not put the title in quotations. \n` + query,
-            stream: false
-        })
-    })
-    const titleData = await titleResponse.json();
-    const title = titleData.response;
+   
+    const titleData = await llm.invoke([
+        "system",
+        `Generate a title for the following query that summarizes 
+        the topic of the query. The title should be short and only 
+        a few words. Do not put the title in quotations. \n` + query,
+    ]);
+
+    const title = titleData.content;
 
     const conversationResult = await db.query(
         'INSERT INTO conversations (user_id, title) VALUES ($1, $2) RETURNING id',
@@ -80,17 +74,7 @@ router.post('/newConversation', async(req,res) => {
     );
     const conversation_id = conversationResult.rows[0].id;
 
-    const queryResponse = await fetch('http://localhost:11434/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            model: 'llama3',
-            prompt: query,
-            stream: false
-        })
-    });
-
-    const responseData = await queryResponse.json();
+    const responseData = await llm.invoke(["human",query]);
 
     try{
         await db.query(
@@ -100,7 +84,7 @@ router.post('/newConversation', async(req,res) => {
     
         db.query(
             'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-            [ conversation_id, 'bot', responseData.response ]
+            [ conversation_id, 'bot', responseData.content ]
         );
     }catch(err){
         console.error('Error inserting conversations:',err);
