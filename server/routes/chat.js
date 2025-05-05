@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const { saveMessage, getMessages, newConversation } = require('../db');
 const { ChatOllama } = require("@langchain/ollama");
 
 const llm = new ChatOllama({
@@ -15,26 +15,16 @@ router.post('/ask', async (req, res) => {
     const data = await llm.invoke(["human",query]);
 
     try{
-        await db.query(
-            'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-            [conversation_id, 'user', query ]
-        );
-    
-        await db.query(
-            'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-            [conversation_id, 'bot', data.content ]
-        );
+        await saveMessage(conversation_id, 'user', query);
+        await saveMessage(conversation_id, 'bot', data.content);
     }catch(err){
         console.error('Error inserting conversations:',err);
         res.status(500).json({ error: 'Failed to insert conversations' });
     }
 
     try{
-        const result = await db.query(
-            'SELECT conversation_id, sender, message FROM messages WHERE conversation_id = $1 ORDER BY timestamp DESC',
-            [conversation_id]
-        )
-        res.json(result.rows);
+        const result = await getMessages(conversation_id);
+        res.json(result);
     }catch(err){
         console.error('Error fetching conversations:',err);
         res.status(500).json({ error: 'Failed to fetch conversations' });
@@ -45,11 +35,8 @@ router.post('/ask', async (req, res) => {
 router.get('/history/:conversationId', async (req, res) => {
     const conversationId = req.params.conversationId;
     try{
-        const result = await db.query(
-            'SELECT conversation_id, sender, message FROM messages WHERE conversation_id = $1 ORDER BY timestamp DESC',
-            [conversationId]
-        );
-        res.json(result.rows);
+        const result = await getMessages(conversationId);
+        res.json(result);
     }catch(err){
         console.error('Error fetching conversations:',err);
         res.status(500).json({ error: 'Failed to fetch conversations' });
@@ -67,36 +54,21 @@ router.post('/newConversation', async(req,res) => {
     ]);
 
     const title = titleData.content;
-
-    const conversationResult = await db.query(
-        'INSERT INTO conversations (user_id, title) VALUES ($1, $2) RETURNING id',
-        [profile.id, title] 
-    );
-    const conversation_id = conversationResult.rows[0].id;
+    const conversation_id = await newConversation(profile.id, title);
 
     const responseData = await llm.invoke(["human",query]);
 
     try{
-        await db.query(
-            'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-            [ conversation_id, 'user', query ]
-        );
-    
-        db.query(
-            'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
-            [ conversation_id, 'bot', responseData.content ]
-        );
+        await saveMessage(conversation_id, 'user', query);
+        await saveMessage(conversation_id, 'bot', responseData.content);
     }catch(err){
         console.error('Error inserting conversations:',err);
         res.status(500).json({ error: 'Failed to insert conversations' });
     }
 
     try{
-        const result = await db.query(
-            'SELECT conversation_id, sender, message FROM messages WHERE conversation_id = $1 ORDER BY timestamp DESC',
-            [conversation_id]
-        )
-        res.json({history: result.rows, conversation_id: conversation_id});
+        const result = await getMessages(conversation_id);
+        res.json({history: result, conversation_id: conversation_id});
     }catch(err){
         console.error('Error fetching conversations:',err);
         res.status(500).json({ error: 'Failed to fetch conversations' });
