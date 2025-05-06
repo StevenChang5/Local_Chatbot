@@ -35,17 +35,31 @@ const Profile = () => {
         e.preventDefault();
         history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
         setInput('');
-        fetch('http://localhost:8080/chat/ask',{
+        const response = fetch('http://localhost:8080/chat/ask',{
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ query: query, conversation_id: activeConversationId})
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            setHistory(data);
-        })
-        .catch(err => console.error('Failed to query chatbot:', err));
+        });
+
+        const reader = (await response).body.getReader();
+        const decoder = new TextDecoder();
+        let message = '';
+        let streamedMessage = { conversation_id: activeConversationId, sender: "bot", message: '' };
+
+        while(true){
+            const { value, done } = await reader.read();
+            if(done) break;
+            const chunk = decoder.decode(value, {stream:true});
+            message += chunk;
+            streamedMessage.message += chunk
+            setHistory(prev=>[streamedMessage, ...prev.filter(msg=>msg!==streamedMessage)]);
+        }
+        // .then(res => res.json())
+        // .then(data => {
+        //     console.log(data);
+        //     setHistory(data);
+        // })
+        // .catch(err => console.error('Failed to query chatbot:', err));
     };
 
     const displayHistory = (id) =>{

@@ -24,25 +24,30 @@ router.post('/ask', async (req, res) => {
     const { query, conversation_id } = req.body;
 
     // const promptValue = await promptTemplate.invoke({text : query});
+    let fullResponse = '';
     history.push(new HumanMessage(query));
-    const data = await chain.invoke({messages: history});
+    const data = await chain.stream({messages: history});
+    for await (const chunk of data){
+        res.write(chunk.content);
+        fullResponse += chunk.content;
+    }
 
     try{
         await saveMessage(conversation_id, 'user', query);
-        await saveMessage(conversation_id, 'bot', data.content);
-        history.push(new AIMessage(data.content));
+        await saveMessage(conversation_id, 'bot', fullResponse);
+        history.push(new AIMessage(fullResponse));
     }catch(err){
         console.error('Error inserting conversations:',err);
-        res.status(500).json({ error: 'Failed to insert conversations' });
+        // res.status(500).json({ error: 'Failed to insert conversations' });
     }
 
-    try{
-        const result = await getMessages(conversation_id);
-        res.json(result);
-    }catch(err){
-        console.error('Error fetching conversations:',err);
-        res.status(500).json({ error: 'Failed to fetch conversations' });
-    }
+    // try{
+    //     const result = await getMessages(conversation_id);
+    //     res.json(result);
+    // }catch(err){
+    //     console.error('Error fetching conversations:',err);
+    //     res.status(500).json({ error: 'Failed to fetch conversations' });
+    // }
     
 });
 
