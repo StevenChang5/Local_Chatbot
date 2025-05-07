@@ -23,7 +23,6 @@ const chain = promptTemplate.pipe(llm);
 router.post('/ask', async (req, res) => {
     const { query, conversation_id } = req.body;
 
-    // const promptValue = await promptTemplate.invoke({text : query});
     let fullResponse = '';
     history.push(new HumanMessage(query));
     const data = await chain.stream({messages: history});
@@ -38,16 +37,7 @@ router.post('/ask', async (req, res) => {
         history.push(new AIMessage(fullResponse));
     }catch(err){
         console.error('Error inserting conversations:',err);
-        // res.status(500).json({ error: 'Failed to insert conversations' });
     }
-
-    // try{
-    //     const result = await getMessages(conversation_id);
-    //     res.json(result);
-    // }catch(err){
-    //     console.error('Error fetching conversations:',err);
-    //     res.status(500).json({ error: 'Failed to fetch conversations' });
-    // }
     
 });
 
@@ -72,7 +62,7 @@ router.get('/history/:conversationId', async (req, res) => {
 
 router.post('/newConversation', async(req,res) => {
     const { query, profile } = req.body;
-   
+    history.length = 0;
     const titleData = await llm.invoke([
         "system",
         `Generate a title for the following query that summarizes 
@@ -81,28 +71,14 @@ router.post('/newConversation', async(req,res) => {
     ]);
 
     const title = titleData.content;
-    const conversation_id = await newConversation(profile.id, title);
-
-    history.push(new HumanMessage(query));
-    const responseData = await chain.invoke({messages: history});
 
     try{
-        await saveMessage(conversation_id, 'user', query);
-        await saveMessage(conversation_id, 'bot', responseData.content);
-        history.push(new AIMessage(responseData.content));
+        const conversation_id = await newConversation(profile.id, title);
+        res.json({conversation_id: conversation_id});
     }catch(err){
-        console.error('Error inserting conversations:',err);
-        res.status(500).json({ error: 'Failed to insert conversations' });
+        console.error('Error creating new conversation:',err);
+        res.status(500).json({error : 'Failed to create new conversation'});
     }
-
-    try{
-        const result = await getMessages(conversation_id);
-        res.json({history: result, conversation_id: conversation_id});
-    }catch(err){
-        console.error('Error fetching conversations:',err);
-        res.status(500).json({ error: 'Failed to fetch conversations' });
-    }
-
 });
 
 module.exports = router;

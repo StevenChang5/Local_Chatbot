@@ -43,14 +43,12 @@ const Profile = () => {
 
         const reader = (await response).body.getReader();
         const decoder = new TextDecoder();
-        let message = '';
         let streamedMessage = { conversation_id: activeConversationId, sender: "bot", message: '' };
 
         while(true){
             const { value, done } = await reader.read();
             if(done) break;
             const chunk = decoder.decode(value, {stream:true});
-            message += chunk;
             streamedMessage.message += chunk
             setHistory(prev=>[streamedMessage, ...prev.filter(msg=>msg!==streamedMessage)]);
         }
@@ -79,19 +77,38 @@ const Profile = () => {
         console.log("New Conversation");
         e.preventDefault();
         history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
+        const tempQuery = input;
         setInput('');
-        fetch('http://localhost:8080/chat/newConversation',{
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ query: query, profile: profile})
-        })
-        .then(res => res.json())
-        .then(data => {
-            setRefreshSidebar(prev => !prev);
-            setHistory(data.history);
+        try{
+            const res = await fetch('http://localhost:8080/chat/newConversation',{
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query: query, profile: profile})
+            })
+            const data = await res.json();
+            setRefreshSidebar(prev=>!prev);
             setActiveConversationId(data.conversation_id);
-        })
-        .catch(err => console.error('Failed to create new conversation:', err));
+
+            const response = await fetch('http://localhost:8080/chat/ask',{
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ query: tempQuery, conversation_id: data.conversation_id})
+            });
+    
+            const reader = (await response).body.getReader();
+            const decoder = new TextDecoder();
+            let streamedMessage = { conversation_id: data.conversation_id, sender: "bot", message: '' };
+    
+            while(true){
+                const { value, done } = await reader.read();
+                if(done) break;
+                const chunk = decoder.decode(value, {stream:true});
+                streamedMessage.message += chunk
+                setHistory(prev=>[streamedMessage, ...prev.filter(msg=>msg!==streamedMessage)]);
+            }
+        }catch(err){
+            console.error('Failed to create new conversation:', err);
+        }   
     }
 
     if(!profile) return <p>Loading profile</p>;
