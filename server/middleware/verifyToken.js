@@ -7,8 +7,7 @@ function verifyToken(req, res, next){
 
     const token = authHeader.split(' ')[1];
     try{
-        // TODO: Fix secret token
-        const decoded = jwt.verify(token, 'asdfjlkasd');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.userId = decoded.userId;
         next();
     }catch(err){

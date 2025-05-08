@@ -28,8 +28,7 @@ router.post('/login', async (req,res) => {
         if(!user || user.password_hash != password){
             return res.status(400).json({message: 'Incorrect password'});
         }
-        // TODO: Fix secret key later
-        const token = jwt.sign({userId: user.id}, 'asdfjlkasd', {expiresIn:'1h'});
+        const token = jwt.sign({userId: user.id}, process.env.JWT_SECRET , {expiresIn:'1h'});
         res.json({message: 'Login successful', token});
     }catch (err){
         console.error(err);
