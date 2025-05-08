@@ -22,7 +22,6 @@ router.post('/register', async (req,res) => {
 
 router.post('/login', async (req,res) => {
     const {email, password} = req.body;
-    console.log("Attempting to login: ", email, password);
     try{
         const result = await accountExists(email);
         const user = result.rows[0];

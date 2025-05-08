@@ -24,7 +24,8 @@ const Profile = () => {
         })
         .then(res => res.json())
         .then(data => setProfile(data))
-        .catch(() => {
+        .catch((err) => {
+            console.log("Error: ", err);
             localStorage.removeItem('token');
             window.location.href = '/';
         })
@@ -52,12 +53,6 @@ const Profile = () => {
             streamedMessage.message += chunk
             setHistory(prev=>[streamedMessage, ...prev.filter(msg=>msg!==streamedMessage)]);
         }
-        // .then(res => res.json())
-        // .then(data => {
-        //     console.log(data);
-        //     setHistory(data);
-        // })
-        // .catch(err => console.error('Failed to query chatbot:', err));
     };
 
     const displayHistory = (id) =>{
