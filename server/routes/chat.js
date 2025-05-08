@@ -48,9 +48,9 @@ router.get('/history/:conversationId', async (req, res) => {
         history.length = 0;
         for(let i = 0; i < result.length; i++){
             if(result[i].sender == 'user'){
-                history.push(new HumanMessage(result[i].message));
+                history.push(new HumanMessage(result[i].msg));
             }else{
-                history.push(new AIMessage(result[i].message));
+                history.push(new AIMessage(result[i].msg));
             }
         }
         res.json(result);

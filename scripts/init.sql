@@ -3,7 +3,7 @@
 --
 
 CREATE TABLE public.conversations (
-    id integer NOT NULL,
+    id SERIAL PRIMARY KEY,
     user_id integer,
     title text,
     created_at timestamp without time zone DEFAULT now()
@@ -14,7 +14,7 @@ CREATE TABLE public.conversations (
 --
 
 CREATE TABLE public.messages (
-    id integer NOT NULL,
+    id SERIAL PRIMARY KEY,
     conversation_id integer,
     sender text NOT NULL,
     msg text NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE public.messages (
 --
 
 CREATE TABLE public.users (
-    id integer NOT NULL,
+    id SERIAL PRIMARY KEY,
     email character varying(255) NOT NULL,
     password_hash text NOT NULL
 );

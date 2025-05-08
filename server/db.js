@@ -34,21 +34,21 @@ async function getAccount(userId){
 
 async function register(email, password){
     await db.query(
-        'INSERT INTO users (email, password) VALUES ($1, $2)',
+        'INSERT INTO users (email, password_hash) VALUES ($1, $2)',
         [email, password]
     );
 }
 
 async function saveMessage(conversationId, role, content){
     await db.query(
-        'INSERT INTO messages (conversation_id, sender, message) VALUES ($1, $2, $3)',
+        'INSERT INTO messages (conversation_id, sender, msg) VALUES ($1, $2, $3)',
         [conversationId, role, content]
     );
 }
 
 async function getMessages(converationId){
     const result = await db.query(
-        'SELECT conversation_id, sender, message FROM messages where conversation_id = $1 ORDER by timestamp DESC',
+        'SELECT conversation_id, sender, msg FROM messages where conversation_id = $1 ORDER by created_at DESC',
         [converationId]
     );
     return result.rows;

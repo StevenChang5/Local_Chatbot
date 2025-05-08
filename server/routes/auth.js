@@ -22,12 +22,11 @@ router.post('/register', async (req,res) => {
 
 router.post('/login', async (req,res) => {
     const {email, password} = req.body;
-
+    console.log("Attempting to login: ", email, password);
     try{
         const result = await accountExists(email);
         const user = result.rows[0];
-
-        if(!user || user.password != password){
+        if(!user || user.password_hash != password){
             return res.status(400).json({message: 'Incorrect password'});
         }
         // TODO: Fix secret key later
