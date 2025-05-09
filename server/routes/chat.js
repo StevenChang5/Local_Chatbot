@@ -4,7 +4,9 @@ const { saveMessage, getMessages, newConversation } = require('../db');
 const { ChatOllama } = require("@langchain/ollama");
 const { ChatPromptTemplate, MessagesPlaceholder } = require("@langchain/core/prompts");
 const { HumanMessage, AIMessage } = require("@langchain/core/messages");
+const { PDFLoader } = require("@langchain/community/document_loaders/fs/pdf")
 const multer = require('multer');
+const path = require('path');
 const upload = multer({ dest: 'uploads/ '});
 
 const llm = new ChatOllama({
@@ -90,8 +92,13 @@ router.post('/rag/pdf', upload.single('file'), async(req,res) => {
         const { conversation_id } = req.body;
         const file = req.file;
 
+        const filePath = path.resolve(file.path);
+        const loader = new PDFLoader(filePath);
         console.log("Conversation ID:", conversation_id);
         console.log("Received File:", file.originalname);
+
+        const docs = await loader.load();
+        console.log("Parsed PDF:", docs.map(doc=>doc.pageContent.slice(0,100)));
         res.json({ success: true, message: 'File uploaded successfully' });
     }catch(err){
         console.error("Error:", err);
