@@ -34,7 +34,7 @@ const Profile = () => {
     const handleQuery = async (e) => {
         console.log("Follow up question");
         e.preventDefault();
-        history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
+        history.unshift({conversation_id: activeConversationId, sender: "user", msg: input});
         setInput('');
         const response = fetch('http://localhost:8080/chat/ask',{
             method: 'POST',
@@ -44,13 +44,13 @@ const Profile = () => {
 
         const reader = (await response).body.getReader();
         const decoder = new TextDecoder();
-        let streamedMessage = { conversation_id: activeConversationId, sender: "bot", message: '' };
+        let streamedMessage = { conversation_id: activeConversationId, sender: "bot", msg: '' };
 
         while(true){
             const { value, done } = await reader.read();
             if(done) break;
             const chunk = decoder.decode(value, {stream:true});
-            streamedMessage.message += chunk
+            streamedMessage.msg += chunk
             setHistory(prev=>[streamedMessage, ...prev.filter(msg=>msg!==streamedMessage)]);
         }
     };
@@ -62,9 +62,11 @@ const Profile = () => {
         }else{
             fetch(`http://localhost:8080/chat/history/${id}`)
             .then(res => res.json())
-            .then(data => setHistory(data))
+            .then(data => {
+                setHistory(data);
+                setActiveConversationId(id);
+            })
             .catch(err => console.error('Failed to fetch conversations:', err));
-            setActiveConversationId(id);
         }
     }
 
@@ -125,7 +127,7 @@ const Profile = () => {
                 <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
                     {history.map((msg,idx) => (
                         <div key={idx}>
-                            <p>{msg.sender}: {msg.message}</p>
+                            <p>{msg.sender}: {msg.msg}</p>
                         </div>
                     ))}
                 </div>
