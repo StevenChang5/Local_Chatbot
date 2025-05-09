@@ -4,6 +4,8 @@ const { saveMessage, getMessages, newConversation } = require('../db');
 const { ChatOllama } = require("@langchain/ollama");
 const { ChatPromptTemplate, MessagesPlaceholder } = require("@langchain/core/prompts");
 const { HumanMessage, AIMessage } = require("@langchain/core/messages");
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/ '});
 
 const llm = new ChatOllama({
     model: "llama3",
@@ -79,6 +81,21 @@ router.post('/newConversation', async(req,res) => {
     }catch(err){
         console.error('Error creating new conversation:',err);
         res.status(500).json({error : 'Failed to create new conversation'});
+    }
+});
+
+router.post('/rag/pdf', upload.single('file'), async(req,res) => {
+    try{
+        console.log("Embedding new pdf...");
+        const { conversation_id } = req.body;
+        const file = req.file;
+
+        console.log("Conversation ID:", conversation_id);
+        console.log("Received File:", file.originalname);
+        res.json({ success: true, message: 'File uploaded successfully' });
+    }catch(err){
+        console.error("Error:", err);
+        res.status(500).json({error: 'Failed to upload PDF'});
     }
 });
 

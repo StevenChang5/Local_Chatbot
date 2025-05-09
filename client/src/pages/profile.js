@@ -8,6 +8,7 @@ const Profile = () => {
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
     const [refreshSidebar, setRefreshSidebar] = useState(false); 
+    const [selectedFile, setSelectedFile] = useState(null);
     
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -32,7 +33,23 @@ const Profile = () => {
     }, []);
 
     const handleQuery = async (e) => {
-        console.log("Follow up question");
+        console.log("Question asked...");
+        if(selectedFile != null){
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            formData.append("conversation_id", activeConversationId);
+            console.log("Uploading PDF file...");
+            fetch('http://localhost:8080/chat/rag/pdf',{
+                method: 'POST',
+                body: formData
+            })
+            .then(res => console.log(res.message)
+            )
+            .catch((err) => {
+                console.error('Failed to upload file:', err);
+            });
+    
+        }
         e.preventDefault();
         history.unshift({conversation_id: activeConversationId, sender: "user", msg: input});
         setInput('');
@@ -68,7 +85,7 @@ const Profile = () => {
             })
             .catch(err => console.error('Failed to fetch conversations:', err));
         }
-    }
+    };
 
     const newConversation = async (e) => {
         console.log("New Conversation");
@@ -106,7 +123,12 @@ const Profile = () => {
         }catch(err){
             console.error('Failed to create new conversation:', err);
         }   
-    }
+    };
+
+    const handleFileUpload = (event) => {
+        console.log("Uploaded file");
+        setSelectedFile(event.target.files[0]);
+    };
 
     if(!profile) return <p>Loading profile</p>;
 
@@ -132,7 +154,9 @@ const Profile = () => {
                     ))}
                 </div>
             </div>
-                
+            <div>
+                <input type="file" onChange={handleFileUpload}/>
+            </div>
             <form onSubmit={activeConversationId ? handleQuery : newConversation}>
                 <input 
                     type="text" 
