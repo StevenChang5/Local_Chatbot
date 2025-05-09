@@ -18,12 +18,17 @@ services:
       timeout: 5s
       retries: 3
   
-  # ollama:
-  #   image: ollama/ollama
-  #   ports:
-  #     - "11434:11434"
-  #   volumes: 
-  #     - ./ollama_models:/root/.ollama
+  ollama:
+    image: ollama/ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes: 
+      - ./ollamaModels:/root/.ollama
+      - ./scripts/ollamaEntry.sh:/ollamaEntry.sh
+    pull_policy: always
+    tty: true
+    entrypoint: ["/usr/bin/bash", "/ollamaEntry.sh"]
 
   server:
     build:

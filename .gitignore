@@ -301,3 +301,6 @@ dist
 
 # PostgreSQL volume
 pgdata
+
+# Ollama volume
+ollamaModels

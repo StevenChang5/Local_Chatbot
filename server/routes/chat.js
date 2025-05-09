@@ -7,6 +7,7 @@ const { HumanMessage, AIMessage } = require("@langchain/core/messages");
 
 const llm = new ChatOllama({
     model: "llama3",
+    baseUrl: "http://ollama:11434",
     temperature: 0,
     maxRetries: 2
 });
@@ -62,6 +63,7 @@ router.get('/history/:conversationId', async (req, res) => {
 
 router.post('/newConversation', async(req,res) => {
     const { query, profile } = req.body;
+    console.log(`Starting new conversation with ${profile.id}`)
     history.length = 0;
     const titleData = await llm.invoke([
         "system",
@@ -71,7 +73,6 @@ router.post('/newConversation', async(req,res) => {
     ]);
 
     const title = titleData.content;
-
     try{
         const conversation_id = await newConversation(profile.id, title);
         res.json({conversation_id: conversation_id});
