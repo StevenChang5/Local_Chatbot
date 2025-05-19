@@ -1,53 +1,18 @@
 # QandA Chat
-Chatbot using Llama3 and Langchain for local q&a and RAG services. 
+The purpose of this app is to create a deployable chatbot for usage by individuals and companies locally, without having to rely on cloud-based services. 
 
-## Prerequisites:
-* Install Ollama locally on computer
-* [MongoDB](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-os-x/)
-
+## How to run using Docker:
+1. Create .env file containing the following:
 ```bash
-    npm install pg
+DB_USER=postgres
+DB_PASSWORD=(i.e. 'password')
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=chatbot_db
+JWT_SECRET=(i.e. 1234)
 ```
-
-## How to run:
-1. Run PostgreSQL (Mac/homebrew commands) and create database
+2. Build docker containers
 ```bash
-    brew services start postgresql
-
-    // To Stop:
-    brew services stop postgresql
-
-    psql postgres
-
-    CREATE TABLE users(
-        id SERIAL PRIMARY KEY,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password TEXT NOT NULL
-    );
-
-    
+    docker compose up
 ```
-2. Run Node.js server
-```bash
-    cd server
-    node index.js
-```
-3. Run React app
-```bash
-    npm start
-```
-## Table schemas:
-*   users:
-```bash
-id | email | password
-```
-
-*   conversations:
-```bash
-id | user_id | title | created_at
-```
-
-*   messages:
-```bash
-id | conversation_id | sender | message | timestamp
-```
+3. Access at http://localhost:3000
