@@ -48,6 +48,7 @@ const Profile = () => {
             .catch((err) => {
                 console.error('Failed to upload file:', err);
             });
+            setSelectedFile(null);
     
         }
         e.preventDefault();
@@ -90,7 +91,7 @@ const Profile = () => {
     const newConversation = async (e) => {
         console.log("New Conversation");
         e.preventDefault();
-        history.unshift({conversation_id: activeConversationId, sender: "user", message: input});
+        history.unshift({conversation_id: activeConversationId, sender: "user", msg: input});
         const tempQuery = input;
         setInput('');
         try{
@@ -102,7 +103,7 @@ const Profile = () => {
             const data = await res.json();
             setRefreshSidebar(prev=>!prev);
             setActiveConversationId(data.conversation_id);
-
+            
             const response = await fetch('http://localhost:8080/chat/ask',{
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -111,13 +112,13 @@ const Profile = () => {
     
             const reader = (await response).body.getReader();
             const decoder = new TextDecoder();
-            let streamedMessage = { conversation_id: data.conversation_id, sender: "bot", message: '' };
+            let streamedMessage = { conversation_id: data.conversation_id, sender: "bot", msg: '' };
     
             while(true){
                 const { value, done } = await reader.read();
                 if(done) break;
                 const chunk = decoder.decode(value, {stream:true});
-                streamedMessage.message += chunk
+                streamedMessage.msg += chunk
                 setHistory(prev=>[streamedMessage, ...prev.filter(msg=>msg!==streamedMessage)]);
             }
         }catch(err){
