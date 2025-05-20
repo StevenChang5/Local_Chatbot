@@ -12,5 +12,9 @@ echo "🔴 Retrieve LLAMA3 model..."
 ollama pull llama3
 echo "🟢 Done!"
 
+echo "🔴 Retrieve Nomic Embedding model..."
+ollama pull nomic-embed-text
+echo "🟢 Done!"
+
 # Wait for Ollama process to finish.
 wait $pid
