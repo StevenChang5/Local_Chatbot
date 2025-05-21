@@ -1,12 +1,37 @@
-const { Pool } = require('pg')
+const { Pool } = require('pg');
+const { OllamaEmbeddings } = require("@langchain/ollama");
+const { PGVectorStore } = require("@langchain/community/vectorstores/pgvector");
 
 const db = new Pool({
-    user: process.env.DB_USER,
     host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
+
+const embeddings = new OllamaEmbeddings({
+    model: "nomic-embed-text",
+    baseUrl: "http://ollama:11434"
+});
+
+const config = {
+    postgresConnectionOptions: {
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: process.env.DB_PORT,
+    },
+    tableName: "embeddings",
+    columns: {
+        idColumnName: "id",
+        vectorColumnName: "vector",
+        contentColumnName: "content",
+        metadataColumnName: "metadata",
+    },
+    distanceStrategy: "cosine"
+}
 
 db.connect((err) => {
     if(err){
@@ -70,6 +95,11 @@ async function getConversations(userId){
     return result.rows;
 }
 
+async function insertEmbedding(docs, ids){
+    const vectorStore = await PGVectorStore.initialize(embeddings, config);
+    await vectorStore.addDocuments(docs, { ids });
+}
+
 module.exports = {
     accountExists,
     getAccount,
@@ -77,5 +107,6 @@ module.exports = {
     saveMessage,
     getMessages,
     newConversation,
-    getConversations
+    getConversations,
+    insertEmbedding
 };
