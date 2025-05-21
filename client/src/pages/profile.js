@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import ChatSidebar from '../components/sidebar';
+import './profile.css';
 
 const Profile = () => {
     const [profile, setProfile] = useState(null);
@@ -9,7 +10,7 @@ const Profile = () => {
     const [history, setHistory] = useState([]);
     const [refreshSidebar, setRefreshSidebar] = useState(false); 
     const [selectedFile, setSelectedFile] = useState(null);
-    
+
     useEffect(() => {
         const token = localStorage.getItem('token');
 
@@ -134,7 +135,7 @@ const Profile = () => {
     if(!profile) return <p>Loading profile</p>;
 
     return (
-        <div>
+        <div className='profile-container'>
             <ChatSidebar
                 userId={profile.id}
                 onSelectConversation={(id) => {
@@ -143,34 +144,37 @@ const Profile = () => {
                 }
                 refreshSignal={refreshSidebar}
             />
-            <h1>Welcome {profile.id} to your profile!</h1>
-            <h2>Current conversation: {activeConversationId}</h2>
-            <div>
-                <h2>Conversation #{activeConversationId}</h2>
-                <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
-                    {history.map((msg,idx) => (
-                        <div key={idx}>
-                            <p>{msg.sender}: {msg.msg}</p>
-                        </div>
-                    ))}
+            <div className='main-content'>
+                <h1>Welcome {profile.id} to your profile!</h1>
+                <h2>Current conversation: {activeConversationId}</h2>
+                <div>
+                    <h2>Conversation #{activeConversationId}</h2>
+                    <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
+                        {history.map((msg,idx) => (
+                            <div key={idx}>
+                                <p className={msg.sender==="user" ? "user_msg": "bot-msg"}>{msg.sender}: {msg.msg}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+                <div>
+                    <input type="file" onChange={handleFileUpload}/>
+                </div>
+                <form onSubmit={activeConversationId ? handleQuery : newConversation}>
+                    <input 
+                        type="text" 
+                        value={input}
+                        placeholder="Ask a question..." 
+                        onChange={e=>{
+                                setQuery(e.target.value);
+                                setInput(e.target.value);
+                            }
+                        } 
+                        required />
+                    <button type="submit">Send Query</button>
+                </form>
             </div>
-            <div>
-                <input type="file" onChange={handleFileUpload}/>
-            </div>
-            <form onSubmit={activeConversationId ? handleQuery : newConversation}>
-                <input 
-                    type="text" 
-                    value={input}
-                    placeholder="Ask a question..." 
-                    onChange={e=>{
-                            setQuery(e.target.value);
-                            setInput(e.target.value);
-                        }
-                    } 
-                    required />
-                <button type="submit">Send Query</button>
-            </form>
+            
         </div>
     );
 };

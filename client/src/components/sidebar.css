@@ -1,0 +1,14 @@
+.sidebar{
+    width: 150px;
+    background-color: #6bffc6;
+    padding: 10px;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+.conversation-list{
+    display: flex;
+    flex-direction: column;
+    gap:1px;
+}

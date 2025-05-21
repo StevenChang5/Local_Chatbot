@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import './sidebar.css';
 
 function ChatSidebar({ userId, onSelectConversation, refreshSignal }){
     const [conversations, setConversations] = useState([]);
@@ -22,17 +23,20 @@ function ChatSidebar({ userId, onSelectConversation, refreshSignal }){
     })
 
     return(
-        <div className="w-64 h-full bg-gray-100 p-4 overflow-y-auto border-r">
+        <div className="sidebar">
             <h2 className="text-lg font-semibold mb-4">Past Chats</h2>
-            {conversations.map(conv => (
-                <button
-                key={conv.id}
-                onClick={() => onSelectConversation(conv.id)}
-                className="block w-full text-left py-2 px-3 rounded hover:bg-gray-200"
-                >
-                {conv.title || 'Untitled Chat'}
-                </button>
-            ))}
+            <div className="conversation-list">
+                {conversations.map(conv => (
+                    <button
+                    key={conv.id}
+                    onClick={() => onSelectConversation(conv.id)}
+                    className="block w-full text-left py-2 px-3 rounded hover:bg-gray-200"
+                    >
+                    {conv.title || 'Untitled Chat'}
+                    </button>
+                ))}
+            </div>
+            
             <button
             key={""}
             onClick={() => onSelectConversation("")}
