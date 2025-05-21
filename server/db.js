@@ -95,7 +95,7 @@ async function getConversations(userId){
     return result.rows;
 }
 
-async function insertEmbedding(docs, ids){
+async function insertEmbedding(docs){
     const vectorStore = await PGVectorStore.initialize(embeddings, config);
     await vectorStore.addDocuments(docs);
 }

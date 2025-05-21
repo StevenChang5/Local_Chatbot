@@ -28,7 +28,10 @@ let history = [];
 
 const promptTemplate = ChatPromptTemplate.fromMessages([
     ["system", "You are a helpful chatbot asssistant. Answer questions to the best of your ability."],
-    new MessagesPlaceholder("messages")
+    ["system", "Use this as context if it is relevant to the query: {context}"],
+    ["system", "Use this chat history as context if it is relevant to the query:"],
+    new MessagesPlaceholder("history"),
+    ["system", "Answer this query: {query}"]
 ]);
 
 const chain = promptTemplate.pipe(llm);
@@ -37,10 +40,13 @@ router.post('/ask', async (req, res) => {
     const { query, conversation_id } = req.body;
 
     const embedding = await getEmbedding(query, conversation_id);
-    console.log("Embedding: ", embedding);
+    console.log("Embedding: ", embedding[0].pageContent);
     let fullResponse = '';
-    history.push(new HumanMessage(query));
-    const data = await chain.stream({messages: history});
+    const data = await chain.stream({
+        history: history,
+        context: embedding[0].pageContent,
+        query: query
+    });
     for await (const chunk of data){
         res.write(chunk.content);
         fullResponse += chunk.content;
@@ -49,6 +55,7 @@ router.post('/ask', async (req, res) => {
     try{
         await saveMessage(conversation_id, 'user', query);
         await saveMessage(conversation_id, 'bot', fullResponse);
+        history.push(new HumanMessage(query));
         history.push(new AIMessage(fullResponse));
     }catch(err){
         console.error('Error inserting conversations:',err);
@@ -98,20 +105,19 @@ router.post('/newConversation', async(req,res) => {
 
 router.post('/rag/pdf', upload.single('file'), async(req,res) => {
     try{
-        console.log("Embedding new pdf...");
         const { conversation_id } = req.body;
         const file = req.file;
 
         const filePath = path.resolve(file.path);
         const loader = new PDFLoader(filePath);
-        console.log("Conversation ID:", conversation_id);
-        console.log("Received File:", file.originalname);
+        console.log("Embedding File:", file.originalname);
 
         const docs = await loader.load();
         for(let i = 0; i < docs.length; i++){
             docs[i].metadata["conversation"] = conversation_id;
         }
         const allSplits = await splitter.splitDocuments(docs);
+        console.log(`Split document into ${allSplits.length} sub-documents.`);
         await insertEmbedding(allSplits);
         res.json({ success: true, message: 'File uploaded successfully' });
     }catch(err){
