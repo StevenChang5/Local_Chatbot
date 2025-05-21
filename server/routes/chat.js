@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { saveMessage, getMessages, newConversation, insertEmbedding  } = require('../db');
+const { saveMessage, getMessages, newConversation, insertEmbedding, getEmbedding } = require('../db');
 const { ChatOllama } = require("@langchain/ollama");
 const { ChatPromptTemplate, MessagesPlaceholder } = require("@langchain/core/prompts");
 const { HumanMessage, AIMessage } = require("@langchain/core/messages");
 const { v4 } = require("uuid");
 const { Document } = require("@langchain/core/documents");
 const { PDFLoader } = require("@langchain/community/document_loaders/fs/pdf");
+const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 const multer = require('multer');
 const path = require('path');
 const upload = multer({ dest: 'uploads/ '});
@@ -16,6 +17,11 @@ const llm = new ChatOllama({
     baseUrl: "http://ollama:11434",
     temperature: 0,
     maxRetries: 2
+});
+
+const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 200
 });
 
 let history = []; 
@@ -30,13 +36,10 @@ const chain = promptTemplate.pipe(llm);
 router.post('/ask', async (req, res) => {
     const { query, conversation_id } = req.body;
 
-    // const [userQueryEmbedding] = await embed.embedQuery(query);
-    // const rows = await getEmbedding(userQueryEmbedding, conversation_id);
-    // const context = rows.map(r => r.content).join("\n");
-
+    const embedding = await getEmbedding(query, conversation_id);
+    console.log("Embedding: ", embedding);
     let fullResponse = '';
     history.push(new HumanMessage(query));
-    // history.push(new HumanMessage(`Use the following context to answer:\n${context}\n\nQuestion: ${query}`));
     const data = await chain.stream({messages: history});
     for await (const chunk of data){
         res.write(chunk.content);
@@ -105,14 +108,11 @@ router.post('/rag/pdf', upload.single('file'), async(req,res) => {
         console.log("Received File:", file.originalname);
 
         const docs = await loader.load();
-        const texts = docs.map(doc => doc.pageContent);
-        const documents = [
-            new Document({pageContent: texts[0],
-                metadata: {test:true}
-            })
-        ];
-        const ids = [v4()];
-        await insertEmbedding(documents, ids);
+        for(let i = 0; i < docs.length; i++){
+            docs[i].metadata["conversation"] = conversation_id;
+        }
+        const allSplits = await splitter.splitDocuments(docs);
+        await insertEmbedding(allSplits);
         res.json({ success: true, message: 'File uploaded successfully' });
     }catch(err){
         console.error("Error:", err);
