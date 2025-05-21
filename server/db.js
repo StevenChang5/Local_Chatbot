@@ -97,7 +97,13 @@ async function getConversations(userId){
 
 async function insertEmbedding(docs, ids){
     const vectorStore = await PGVectorStore.initialize(embeddings, config);
-    await vectorStore.addDocuments(docs, { ids });
+    await vectorStore.addDocuments(docs);
+}
+
+async function getEmbedding(query, conversation_id){
+    const vectorStore = await PGVectorStore.initialize(embeddings, config);
+    const result = await vectorStore.similaritySearch(query, 1, { conversation: conversation_id});
+    return result;
 }
 
 module.exports = {
@@ -108,5 +114,6 @@ module.exports = {
     getMessages,
     newConversation,
     getConversations,
-    insertEmbedding
+    insertEmbedding,
+    getEmbedding
 };
