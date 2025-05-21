@@ -4,8 +4,6 @@ const { saveMessage, getMessages, newConversation, insertEmbedding, getEmbedding
 const { ChatOllama } = require("@langchain/ollama");
 const { ChatPromptTemplate, MessagesPlaceholder } = require("@langchain/core/prompts");
 const { HumanMessage, AIMessage } = require("@langchain/core/messages");
-const { v4 } = require("uuid");
-const { Document } = require("@langchain/core/documents");
 const { PDFLoader } = require("@langchain/community/document_loaders/fs/pdf");
 const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
 const multer = require('multer');
@@ -28,10 +26,9 @@ let history = [];
 
 const promptTemplate = ChatPromptTemplate.fromMessages([
     ["system", "You are a helpful chatbot asssistant. Answer questions to the best of your ability."],
-    ["system", "Use this as context if it is relevant to the query: {context}"],
-    ["system", "Use this chat history as context if it is relevant to the query:"],
+    ["system", "Context: {context}"],
     new MessagesPlaceholder("history"),
-    ["system", "Answer this query: {query}"]
+    ["human", "{query}"]
 ]);
 
 const chain = promptTemplate.pipe(llm);
@@ -40,17 +37,30 @@ router.post('/ask', async (req, res) => {
     const { query, conversation_id } = req.body;
 
     const embedding = await getEmbedding(query, conversation_id);
-    console.log("Embedding: ", embedding[0].pageContent);
+    console.log("Embedding:", embedding);
     let fullResponse = '';
-    const data = await chain.stream({
-        history: history,
-        context: embedding[0].pageContent,
-        query: query
-    });
-    for await (const chunk of data){
-        res.write(chunk.content);
-        fullResponse += chunk.content;
+    if(embedding.length == 0){
+        const data = await chain.stream({
+            history: history,
+            context: "",
+            query: query
+        });
+        for await (const chunk of data){
+            res.write(chunk.content);
+            fullResponse += chunk.content;
+        }
+    }else{
+        const data = await chain.stream({
+            history: history,
+            context: embedding[0].pageContent,
+            query: query
+        });
+        for await (const chunk of data){
+            res.write(chunk.content);
+            fullResponse += chunk.content;
+        }
     }
+    
 
     try{
         await saveMessage(conversation_id, 'user', query);
