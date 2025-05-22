@@ -4,8 +4,6 @@ import './sidebar.css';
 function ChatSidebar({ userId, onSelectConversation, refreshSignal }){
     const [conversations, setConversations] = useState([]);
 
-    
-
     useEffect(() => {
         fetch(`http://localhost:8080/profile/conversations/${userId}`)
         .then(res => res.json())
@@ -24,25 +22,22 @@ function ChatSidebar({ userId, onSelectConversation, refreshSignal }){
 
     return(
         <div className="sidebar">
-            <h2 className="text-lg font-semibold mb-4">Past Chats</h2>
+            <div className="section-title">Past Chats</div>
             <div className="conversation-list">
                 {conversations.map(conv => (
                     <button
                     key={conv.id}
                     onClick={() => onSelectConversation(conv.id)}
-                    className="block w-full text-left py-2 px-3 rounded hover:bg-gray-200"
+                    className="conversation-button"
                     >
                     {conv.title || 'Untitled Chat'}
                     </button>
                 ))}
             </div>
             
-            <button
-            key={""}
-            onClick={() => onSelectConversation("")}
-            className="block w-full text-left py-2 px-3 rounded hover:bg-gray-200"
-            >
-                Start a new chat:
+            <button key={""} onClick={() => onSelectConversation("")} className="new-chat-button">
+                <img className="new-chat-symbol" src="/static/new_chat.png" alt="New Chat"/>
+                <span>New Chat</span>
             </button>
         </div>
     );
