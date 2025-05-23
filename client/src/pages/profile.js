@@ -145,23 +145,17 @@ const Profile = () => {
                 refreshSignal={refreshSidebar}
             />
             <div className='main-content'>
-                <h1>Welcome {profile.id} to your profile!</h1>
-                <h2>Current conversation: {activeConversationId}</h2>
-                <div>
-                    <h2>Conversation #{activeConversationId}</h2>
-                    <div style={{display: 'flex', flexDirection: 'column-reverse'}}>
+                <h2 className="chat-title;">Current conversation: {activeConversationId}</h2>
+                    <div className="chat-history">
                         {history.map((msg,idx) => (
-                            <div key={idx}>
-                                <p className={msg.sender==="user" ? "user_msg": "bot-msg"}>{msg.sender}: {msg.msg}</p>
+                            <div key={idx} className={`message-container ${msg.sender}`}>
+                                <p className="message-text">{msg.msg}</p>
                             </div>
                         ))}
                     </div>
-                </div>
-                <div>
-                    <input type="file" onChange={handleFileUpload}/>
-                </div>
-                <form onSubmit={activeConversationId ? handleQuery : newConversation}>
+                <form className="form-query" onSubmit={activeConversationId ? handleQuery : newConversation}>
                     <input 
+                        class="input"
                         type="text" 
                         value={input}
                         placeholder="Ask a question..." 
@@ -171,7 +165,10 @@ const Profile = () => {
                             }
                         } 
                         required />
-                    <button type="submit">Send Query</button>
+                    <input type="file" onChange={handleFileUpload}/>
+                    <button type="submit" className="submit-button">
+                        <img className="submit-button-symbol" src="/static/query.png" alt="Submit" />
+                    </button>
                 </form>
             </div>
             
