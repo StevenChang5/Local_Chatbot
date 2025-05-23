@@ -27,7 +27,7 @@ function ChatSidebar({ userId, onSelectConversation, refreshSignal }){
                 {conversations.map(conv => (
                     <button
                     key={conv.id}
-                    onClick={() => onSelectConversation(conv.id)}
+                    onClick={() => onSelectConversation(conv.id, conv.title)}
                     className="conversation-button"
                     >
                     {conv.title || 'Untitled Chat'}

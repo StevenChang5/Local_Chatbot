@@ -6,6 +6,7 @@ const Profile = () => {
     const [profile, setProfile] = useState(null);
     const [query, setQuery] = useState('');
     const [activeConversationId, setActiveConversationId] = useState(null);
+    const [activeConversationTitle, setActiveConversationTitle] = useState('');
     const [input, setInput] = useState('');
     const [history, setHistory] = useState([]);
     const [refreshSidebar, setRefreshSidebar] = useState(false); 
@@ -74,7 +75,7 @@ const Profile = () => {
         }
     };
 
-    const displayHistory = (id) =>{
+    const displayHistory = (id, title) =>{
         if(id === ""){
             setActiveConversationId(null);
             setHistory([]);
@@ -84,6 +85,7 @@ const Profile = () => {
             .then(data => {
                 setHistory(data);
                 setActiveConversationId(id);
+                setActiveConversationTitle(title);
             })
             .catch(err => console.error('Failed to fetch conversations:', err));
         }
@@ -138,14 +140,14 @@ const Profile = () => {
         <div className='profile-container'>
             <ChatSidebar
                 userId={profile.id}
-                onSelectConversation={(id) => {
-                        displayHistory(id);
+                onSelectConversation={(id, title) => {
+                        displayHistory(id, title);
                     }
                 }
                 refreshSignal={refreshSidebar}
             />
             <div className='main-content'>
-                <h2 className="chat-title;">Current conversation: {activeConversationId}</h2>
+                <h2 className="chat-title;">{activeConversationId ? activeConversationTitle : ""}</h2>
                     <div className="chat-history">
                         {history.map((msg,idx) => (
                             <div key={idx} className={`message-container ${msg.sender}`}>
