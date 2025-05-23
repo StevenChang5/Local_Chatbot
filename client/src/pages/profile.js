@@ -165,10 +165,18 @@ const Profile = () => {
                             }
                         } 
                         required />
-                    <input type="file" onChange={handleFileUpload}/>
-                    <button type="submit" className="submit-button">
-                        <img className="submit-button-symbol" src="/static/query.png" alt="Submit" />
-                    </button>
+                    
+                    <div className="options">
+                        <label className="file">
+                            <img className="file-symbol" src ="/static/doc.png" alt="File Upload"/>
+                            <input className="file-submit" type="file" onChange={handleFileUpload}/>
+                        </label>
+                        
+                        <button type="submit" className="submit-button">
+                            <img className="submit-button-symbol" src="/static/query.png" alt="Submit" />
+                        </button>
+                    </div>
+                    
                 </form>
             </div>
             

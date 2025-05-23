@@ -80,5 +80,6 @@
 
 .new-chat-button:hover{
     background-color:#7de68f;
+    border-color: #7de68f;
     cursor: pointer;
 }

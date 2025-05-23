@@ -70,25 +70,66 @@
 
 .form-query{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: 100%;
     margin-top: 5px;
     margin-bottom: 5px;
-    height: 50px;
 }
 
 .form-query .input{
+    display: flex;
     flex: 1;
     font-size: 16px;
     padding: 12px 20px;
-    border-radius: 4px;
+    border-radius: 18px;
     box-sizing: border-box;
     border: 1px solid #ccc;
+    border-bottom: none;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.form-query .input:focus{
+    outline: none;
+    box-shadow: none;
+}
+
+.form-query .options{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 18px;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    padding-left: 12px;
+    align-items: center;
+}
+
+.file{
+    border-radius: 4px;
+}
+
+.file:hover{
+    background-color: #d6d6d6;
+    cursor: pointer;
+}
+
+.file .file-symbol{
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+}
+
+.file .file-submit{
+    display: none;
 }
 
 .form-query .submit-button{
-    height: 50px;
-    width: 50px;
+    height: 37px;
+    width: 37px;
+    margin: 5px;
     background: none;
     border: none;
     padding: 0;
@@ -96,7 +137,7 @@
 }
 
 .form-query .submit-button:hover{
-    background-color: #555;
+    background-color: #d6d6d6;
     border-radius: 100%;
 }
 
